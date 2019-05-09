@@ -14,6 +14,6 @@ Sample Flask Project
  
  pip install flask
  
- export FLASK_APP=microblog.py
+ export FLASK_APP=microblog.py  # or pip install python-dotenv and then add .flaskenv file 
  flask run
  ```
