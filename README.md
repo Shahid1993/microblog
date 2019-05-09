@@ -9,7 +9,7 @@ Sample Flask Project
  
  python3 -m venv venv
  
- virtualenv venv
+ #virtualenv venv
  source venv/bin/activate
  
  pip install flask
