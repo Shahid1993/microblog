@@ -5,10 +5,16 @@ from flask_migrate import Migrate
 
 
 app = Flask(__name__)
+
+from flask_login import LoginManager
+
+login = LoginManager(app)
+
 app.config.from_object(Config)
 
 db=SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 from app import routes, models
+
 

@@ -31,6 +31,10 @@ Sample Flask Project
  ```shell
  pip install flask-migrate
  ```
+ - [Flask-Login](https://flask-login.readthedocs.io/en/latest/) : Flask-Login provides user session management for Flask. It handles the common tasks of logging in, logging out, and remembering your users’ sessions over extended periods of time.
+ ```shell
+ pip install flask-login
+ ```
 
 
 #### Learnings :
@@ -72,6 +76,50 @@ Sample Flask Project
         return {'db': db, 'User': User, 'Post': Post}
     ```
     - The `app.shell_context_processor` decorator registers the function as a shell context function. When the `flask shell` command runs, it will invoke this function and register the items returned by it in the shell session.
+ - __Password Hashing :__
+    - One of the packages that implement password hashing is [Werkzeug](https://palletsprojects.com/p/werkzeug/) - pre-installed as it is one of the core dependencies of Flask
+    ```python
+    >>> from werkzeug.security import generate_password_hash
+    >>> hash = generate_password_hash('foobar')
+    >>> hash
+    'pbkdf2:sha256:50000$vT9fkZM8$04dfa35c6476acf7e788a1b5b3c35e217c78dc04539d295f011f01f18cd2175f'
+    ```
+    - verification :
+    ```python
+    >>> from werkzeug.security import check_password_hash
+    >>> check_password_hash(hash, 'foobar')
+    True
+    >>> check_password_hash(hash, 'barfoo')
+    False
+    ```
+ - __Flask-Login__ needs to be created and initialized right after the application instance in _app/__init__.py_. 
+    - The Flask-Login extension works with the application's user model, and expects certain properties and methods to be implemented in it.
+    - The four required items are listed below:
+        - `is_authenticated`: a property that is `True` if the user has valid credentials or `False` otherwise.
+        - `is_active`: a property that is `True` if the user's account is active or `False` otherwise.
+        - `is_anonymous`: a property that is `False` for regular users, and `True` for a special, anonymous user.
+        - `get_id()`: a method that returns a unique identifier for the user as a string (unicode, if using Python 2)
+    - Since the implementations are fairly generic, Flask-Login provides a mixin class called UserMixin that includes generic implementations that are appropriate for most user model classes.
+    ```python
+    # ...
+    from flask_login import UserMixin
+
+    class User(UserMixin, db.Model):
+        # ...
+    ```
+    - Flask-Login keeps track of the logged in user by storing its unique identifier in Flask's user session, a storage space assigned to each user who connects to the application. Each time the logged-in user navigates to a new page, Flask-Login retrieves the ID of the user from the session, and then loads that user into memory.
+    - Because Flask-Login knows nothing about databases, it needs the application's help in loading a user. For that reason, the extension expects that the application will configure a user loader function, that can be called to load a user given the ID.
+    - The `is_anonymous` property is one of the attributes that Flask-Login adds to user objects through the `UserMixin` class. The `current_user.is_anonymous` expression is going to be `True` only when the user is not logged in.
+    - __Requiring Users To Login :__ Flask-Login provides a very useful feature that forces users to log in before they can view certain pages of the application. 
+        - For this feature to be implemented, Flask-Login needs to know what is the view function that handles logins. 
+        ```python
+        # ...
+        login = LoginManager(app)
+        login.login_view = 'login'
+        ```
+        - The way Flask-Login protects a view function against anonymous users is with a decorator called `@login_required`. When you add this decorator to a view function below the `@app.route` decorators from Flask, the function becomes protected and will not allow access to users that are not authenticated.
+
+ - When you add any methods that match the pattern `validate_<field_name>`, WTForms takes those as custom validators and invokes them in addition to the stock validators. 
 
 
 
