@@ -139,7 +139,89 @@ Sample Flask Project
 
 - The `@before_request` decorator from Flask register the decorated function to be executed right before the view function.
 
+- __Debug Mode :__ To activate debug mode, stop the application, and then set the following environment variable:
+   ```shell
+   export FLASK_DEBUG=1
+   ```
+   or set `FLASK_DEBUG=1` in _.flaskenv_ file
+   - It is extremely important that you never run a Flask application in debug mode on a production server. The debugger allows the user to remotely execute code in the server.
+   - _reloader_ feature is also enabled with debug mode.
 
+- __Custom Error Pages :__ To declare a custom error handler, the `@errorhandler` decorator is used.
+
+- __Sending Errors by Email :__ 
+   - The first step is to add the email server details to the configuration file:
+      ```python
+      class Config(object):
+         # ...
+         MAIL_SERVER = os.environ.get('MAIL_SERVER')
+         MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+         MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+         MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+         MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+         ADMINS = ['your-email@example.com']
+      ```
+   - Flask uses Python's `logging` package to write its logs, and this package already has the ability to send logs by email. All I need to do to get emails sent out on errors is to add a SMTPHandler instance to the Flask logger object, which is `app.logger`:
+      ```python
+      import logging
+      from logging.handlers import SMTPHandler
+
+      # ...
+
+      if not app.debug:
+         if app.config['MAIL_SERVER']:
+            auth = None
+            if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
+                  auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+            secure = None
+            if app.config['MAIL_USE_TLS']:
+                  secure = ()
+            mail_handler = SMTPHandler(
+                  mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
+                  fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+                  toaddrs=app.config['ADMINS'], subject='Microblog Failure',
+                  credentials=auth, secure=secure)
+            mail_handler.setLevel(logging.ERROR)
+            app.logger.addHandler(mail_handler)
+      ```
+
+   - There are two approaches to test this feature. 
+      - The easiest one is to use the SMTP debugging server from Python. This is a fake email server that accepts emails, but instead of sending them, it prints them to the console. To run this server, open a second terminal session and run the following command on it:
+         ```shell
+         python -m smtpd -n -c DebuggingServer localhost:8025
+         ```
+      - A second testing approach for this feature is to configure a real email server. Below is the configuration to use your Gmail account's email server:
+         ```shell
+         export MAIL_SERVER=smtp.googlemail.com
+         export MAIL_PORT=587
+         export MAIL_USE_TLS=1
+         export MAIL_USERNAME=<your-gmail-username>
+         export MAIL_PASSWORD=<your-gmail-password>
+         ```
+
+   - __Logging to a File :__ To enable a file based log another handler, this time of type RotatingFileHandler, needs to be attached to the application logger, in a similar way to the email handler.
+      ```python
+      # ...
+      from logging.handlers import RotatingFileHandler
+      import os
+
+      # ...
+
+      if not app.debug:
+         # ...
+
+         if not os.path.exists('logs'):
+            os.mkdir('logs')
+         file_handler = RotatingFileHandler('logs/microblog.log', maxBytes=10240,
+                                             backupCount=10)
+         file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+         file_handler.setLevel(logging.INFO)
+         app.logger.addHandler(file_handler)
+
+         app.logger.setLevel(logging.INFO)
+         app.logger.info('Microblog startup')
+      ```
 
 
 
