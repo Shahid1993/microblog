@@ -123,7 +123,7 @@ Sample Flask Project
 
  - `first_or_404()` : works exactly like first() when there are results, but in the case that there are no results automatically sends a 404 error back to the client.
 
- - __[Gravatar]__(https://en.gravatar.com/) : To request an image for a given user, a URL with the format https://www.gravatar.com/avatar/`<hash>`, where `<hash>` is the MD5 hash of the user's email address.
+ - [__Gravatar__](https://en.gravatar.com/) : To request an image for a given user, a URL with the format https://www.gravatar.com/avatar/<hash>, where <hash> is the MD5 hash of the user's email address.
    ```shell
    >>> from hashlib import md5
    >>> 'https://www.gravatar.com/avatar/' + md5(b'john@example.com').hexdigest()
