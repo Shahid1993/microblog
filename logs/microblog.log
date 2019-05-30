@@ -75,3 +75,9 @@ sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed
 [parameters: ('Shahid', "I'm learning flask...", 2)]
 (Background on this error at: http://sqlalche.me/e/gkpj)
 2019-05-20 13:06:53,424 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-20 13:52:36,473 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-20 13:52:47,419 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 12:25:59,725 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 14:43:24,743 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 14:56:16,073 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 14:58:15,737 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]

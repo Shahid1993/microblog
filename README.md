@@ -223,6 +223,40 @@ Sample Flask Project
          app.logger.info('Microblog startup')
       ```
 
+- __*self-referential relationship :*__ A relationship in which instances of a class are linked to other instances of the same class
+
+- An auxiliary table that has no data other than the foreign keys is created without an associated model class.
+   ```python
+   followers = db.Table('followers',
+      db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+      db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+   )
+   ```
+
+- Declare the many-to-many relationship in the users table:
+   ```python
+   class User(UserMixin, db.Model):
+      # ...
+      followed = db.relationship(
+         'User', secondary=followers,
+         primaryjoin=(followers.c.follower_id == id),
+         secondaryjoin=(followers.c.followed_id == id),
+         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+   ```
+
+- The `filter()` method is lower level, as it can include arbitrary filtering conditions, unlike `filter_by()` which can only check for equality to a constant value.
+
+- __Query Terminators :__
+   - `all()`
+   - `first()`
+   - `count()`
+
+- __Unit Testing :__
+   - `unittest` : Python package that makes it easy to write and execute unit tests.
+   - The `setUp()` and `tearDown()` methods are special methods that the unit testing framework executes before and after each test respectively.
+   - By changing the application configuration to `sqlite://` , SQLAlchemy uses an in-memory SQLite database during the tests.
+   - The `db.create_all()` call creates all the database tables. This is a quick way to create a database from scratch that is useful for testing. 
+
 
 
 
