@@ -257,7 +257,7 @@ Sample Flask Project
    - By changing the application configuration to `sqlite://` , SQLAlchemy uses an in-memory SQLite database during the tests.
    - The `db.create_all()` call creates all the database tables. This is a quick way to create a database from scratch that is useful for testing. 
 
-- __[Post/Redirect/Get (PRG)]__(https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern: A web development design pattern that prevents some duplicate form submissions, creating a more intuitive interface for user agents (users). PRG supports bookmarks and the refresh button in a predictable way that does not create duplicate form submissions.
+- __[Post/Redirect/Get (PRG)](https://en.wikipedia.org/wiki/Post/Redirect/Get)__ pattern: A web development design pattern that prevents some duplicate form submissions, creating a more intuitive interface for user agents (users). PRG supports bookmarks and the refresh button in a predictable way that does not create duplicate form submissions.
 
 - To prevent the _index.html_ template from crashing when it tries to render a web form that does not exist, add a conditional that only renders the form if it is defined.
 
