@@ -1,0 +1,105 @@
+2019-05-20 12:25:02,206 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-20 12:26:05,091 ERROR: Exception on /edit_profile [POST] [in /home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py:1761]
+Traceback (most recent call last):
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1244, in _execute_context
+    cursor, statement, parameters, context
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/default.py", line 552, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: user.username
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/_compat.py", line 35, in reraise
+    raise value
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask_login/utils.py", line 261, in decorated_view
+    return func(*args, **kwargs)
+  File "/home/codemantra/Documents/Learning/Python/microblog/app/routes.py", line 91, in edit_profile
+    db.session.commit()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/scoping.py", line 162, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 1026, in commit
+    self.transaction.commit()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 493, in commit
+    self._prepare_impl()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 472, in _prepare_impl
+    self.session.flush()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2451, in flush
+    self._flush(objects)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2589, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/util/langhelpers.py", line 68, in __exit__
+    compat.reraise(exc_type, exc_value, exc_tb)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/util/compat.py", line 129, in reraise
+    raise value
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2549, in _flush
+    flush_context.execute()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/unitofwork.py", line 422, in execute
+    rec.execute(self)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/unitofwork.py", line 589, in execute
+    uow,
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/persistence.py", line 236, in save_obj
+    update,
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/orm/persistence.py", line 978, in _emit_update_statements
+    statement, multiparams
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 988, in execute
+    return meth(self, multiparams, params)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/sql/elements.py", line 287, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1107, in _execute_clauseelement
+    distilled_params,
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1248, in _execute_context
+    e, statement, parameters, cursor, context
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1466, in _handle_dbapi_exception
+    util.raise_from_cause(sqlalchemy_exception, exc_info)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/util/compat.py", line 383, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/util/compat.py", line 128, in reraise
+    raise value.with_traceback(tb)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1244, in _execute_context
+    cursor, statement, parameters, context
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/sqlalchemy/engine/default.py", line 552, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: user.username
+[SQL: UPDATE user SET username=?, about_me=? WHERE user.id = ?]
+[parameters: ('Shahid', "I'm learning flask...", 2)]
+(Background on this error at: http://sqlalche.me/e/gkpj)
+2019-05-20 13:06:53,424 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-20 13:52:36,473 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-20 13:52:47,419 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 12:25:59,725 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 14:43:24,743 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 14:56:16,073 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 14:58:15,737 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 16:52:22,297 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 17:00:58,117 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 17:46:05,390 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 17:48:50,542 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]
+2019-05-30 17:48:54,646 ERROR: Exception on /explore [GET] [in /home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py:1761]
+Traceback (most recent call last):
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/_compat.py", line 35, in reraise
+    raise value
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/codemantra/Documents/Learning/Python/microblog/venv/lib/python3.7/site-packages/flask/app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/codemantra/Documents/Learning/Python/microblog/app/routes.py", line 154, in explore
+    page = request.args.get(page, 1, type=int)
+UnboundLocalError: local variable 'page' referenced before assignment
+2019-05-30 17:50:00,124 INFO: Microblog Startup [in /home/codemantra/Documents/Learning/Python/microblog/app/__init__.py:52]

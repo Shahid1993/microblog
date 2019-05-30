@@ -257,9 +257,22 @@ Sample Flask Project
    - By changing the application configuration to `sqlite://` , SQLAlchemy uses an in-memory SQLite database during the tests.
    - The `db.create_all()` call creates all the database tables. This is a quick way to create a database from scratch that is useful for testing. 
 
+- __[Post/Redirect/Get (PRG)]__(https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern: A web development design pattern that prevents some duplicate form submissions, creating a more intuitive interface for user agents (users). PRG supports bookmarks and the refresh button in a predictable way that does not create duplicate form submissions.
 
+- To prevent the _index.html_ template from crashing when it tries to render a web form that does not exist, add a conditional that only renders the form if it is defined.
 
+- __Pagination :__ 
+   - Flask-SQLAlchemy supports pagination natively with the `paginate()` query method.
 
+   ```python
+   user.followed_posts().paginate(1, 20, False).items
+   ```
+   - The `paginate` method can be called on any query object from Flask-SQLAlchemy. 
+   - The return value from paginate is an object of a Pagination class from Flask-SQLAlchemy. The items attribute of this object contains the list of items in the requested page, alongwith other useful attributes that are useful when building pagination links:
+      - `has_next`: True if there is at least one more page after the current one
+      - `has_prev`: True if there is at least one more page before the current one
+      - `next_num`: page number for the next page
+      - `prev_num`: page number for the previous page
 
  #### Questions :
  - [Pylint can't find SQLAlchemy query member](https://stackoverflow.com/questions/28193025/pylint-cant-find-sqlalchemy-query-member)
