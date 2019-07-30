@@ -1,5 +1,4 @@
 #!/home/codemantra/Documents/Learning/Python/microblog/venv/bin/python3
-
 # -*- coding: utf-8 -*-
 import re
 import sys

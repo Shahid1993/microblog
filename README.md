@@ -23,7 +23,8 @@ Sample Flask Project
    ```shell
    pip install flask-wtf
    ```
- - [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) : an extension that provides a Flask-friendly wrapper to the popular SQLAlchemy package, which is an Object Relational Mapper or ORM. SQLAlchemy supports a long list of database engines, including the popular MySQL, PostgreSQL and SQLite.
+ - [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) : an extension that provides a Flask-friendly wrapper to the popular SQLAlchemy package, which is an Object Relational Mapper or ORM. SQLAlchemy supports a long list of database engines, including the popular MySQL, PostgreSQL and SQLite (simple and does not require a server). 
+   ORMs allow applications to manage a database using high-level entities such as classes, objects and methods instead of tables and SQL. The job of the ORM is to translate the high-level operations into database commands.
    ```shell
    pip install flask-sqlalchemy
    ```
@@ -35,6 +36,15 @@ Sample Flask Project
    ```shell
    pip install flask-login
    ```
+ - [Flask-Mail](https://pythonhosted.org/Flask-Mail/) : provides a simple interface to set up SMTP with your Flask application and to send messages from your views and scripts.
+   ```shell
+   pip install Flask-Mail
+   ```
+ - [JSON Web Tokens](https://jwt.io/) : an open, industry standard RFC 7519 method for representing claims securely between two parties. JWT.IO allows you to decode, verify and generate JWT.
+   ```shell
+   pip install pyjwt
+   ```
+   
 
 
 #### Learnings :
@@ -55,13 +65,41 @@ Sample Flask Project
     flask db migrate -m "users table"
     flask db upgrade
     ```
-    - The upgrade() function applies the migration, and the downgrade() function removes it.
-    - Flask-SQLAlchemy uses a "snake case" naming convention for database tables by default. For the User model above, the corresponding table in the database will be named user. For a AddressAndPhone model class, the table would be named address_and_phone. If you prefer to choose your own table names, you can add an attribute named __tablename__ to the model class, set to the desired name as a string.
+    - The `flask db migrate` command does not make any changes to the database, it just generates the migration script. To apply the changes to the database, the `flask db upgrade` command must be used.
+    - The `upgrade()` function applies the migration, and the `downgrade()` function removes it.
+    - Flask-SQLAlchemy uses a "snake case" naming convention for database tables by default. For the `User` model above, the corresponding table in the database will be named `user`. For a `AddressAndPhone` model class, the table would be named `address_and_phone`. If you prefer to choose your own table names, you can add an attribute named `__tablename__ `to the model class, set to the desired name as a string.
+    - Because this application uses SQLite, the `upgrade` command will detect that a database does not exist and will create it (you will notice a file named _app.db_ is added after this command finishes, that is the SQLite database). When working with database servers such as MySQL and PostgreSQL, you have to create the database in the database server before running `upgrade`.
     - __Database Upgrade and Downgrade Workflow :__  With database migration support, after you modify the models in your application you generate a new migration script (`flask db migrate`), you probably review it to make sure the automatic generation did the right thing, and then apply the changes to your development database (`flask db upgrade`). You will add the migration script to source control and commit it.  
     When you are ready to release the new version of the application to your production server, all you need to do is grab the updated version of your application, which will include the new migration script, and run `flask db upgrade`. Alembic will detect that the production database is not updated to the latest revision of the schema, and run all the new migration scripts that were created after the previous release.  
     As I mentioned earlier, you also have a `flask db downgrade` command, which undoes the last migration. While you will be unlikely to need this option on a production system, you may find it very useful during development. You may have generated a migration script and applied it, only to find that the changes that you made are not exactly what you need. In this case, you can downgrade the database, delete the migration script, and then generate a new one to replace it.
-    - It is an unfortunate inconsistency that in some instances such as in a db.relationship() call, the model is referenced by the model class, which typically starts with an uppercase character, while in other cases such as this db.ForeignKey() declaration, a model is given by its database table name, for which SQLAlchemy automatically uses lowercase characters and, for multi-word model names, snake case.
+    - In `User` model:
+    ```
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    ```
+    - In `Post` model:
+    ```
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    ```
+
+    - It is an unfortunate inconsistency that in some instances such as in a `db.relationship()` call, the model is referenced by the model class, which typically starts with an uppercase character, while in other cases such as this `db.ForeignKey()` declaration, a model is given by its database table name, for which SQLAlchemy automatically uses lowercase characters and, for multi-word model names, snake case.
+    - For a one-to-many relationship, a `db.relationship` field is normally defined on the "one" side, and is used as a convenient way to get access to the "many".
+    - The first argument to `db.relationship` is the model class that represents the "many" side of the relationship. This argument can be provided as a string with the class name if the model is defined later in the module. 
+    - If you would want to have a one-to-one relationship you can pass `uselist=False` to `relationship()`.
+    - The `backref` argument defines the name of a field that will be added to the objects of the "many" class that points back at the "one" object. This will add a `post.author` expression that will return the user given a post. 
     - The `lazy` argument defines how the database query for the relationship will be issued
+    - `lazy` defines when SQLAlchemy will load the data from the database:
+
+         - `'select'` / `True` (which is the default, but explicit is better than implicit) means that SQLAlchemy will load the data as necessary in one go using a standard select statement.
+         - `'joined'` / `False` tells SQLAlchemy to load the relationship in the same query as the parent using a `JOIN` statement.
+         - `'subquery'` works like `'joined'` but instead SQLAlchemy will use a subquery.
+         - `'dynamic'` is special and can be useful if you have many items and always want to apply additional SQL filters to them. Instead of loading the items SQLAlchemy will return another query object which you can further refine before loading the items. Note that this cannot be turned into a different loading strategy when querying so it’s often a good idea to avoid using this in favor of `lazy=True`. A query object equivalent to a dynamic user.posts relationship can be created using `Post.query.with_parent(user)` while still being able to use lazy or eager loading on the relationship itself as necessary.
+      - How do you define the lazy status for backrefs? By using the `backref()` function:
+      ```
+      posts = db.relationship('Post', backref=db.backref('author', lazy='joined'), lazy='dynamic')
+      ```
+
+    - Changes to a database are done in the context of a session, which can be accessed as `db.session`. Multiple changes can be accumulated in a session and once all the changes have been registered you can issue a single `db.session.commit()`, which writes all the changes atomically. If at any time while working on a session there is an error, a call to db.session.rollback() will abort the session and remove any changes stored in it.
+    - All models have a `query` attribute that is the entry point to run database queries.
     - SQLAlchemy is great in the respect that it provides a high-level abstraction over relationships and foreign keys.
  - `flask shell` : 
     - to start a Python interpreter in the context of the application.
@@ -108,7 +146,14 @@ Sample Flask Project
          # ...
       ```
     - Flask-Login keeps track of the logged in user by storing its unique identifier in Flask's user session, a storage space assigned to each user who connects to the application. Each time the logged-in user navigates to a new page, Flask-Login retrieves the ID of the user from the session, and then loads that user into memory.
-    - Because Flask-Login knows nothing about databases, it needs the application's help in loading a user. For that reason, the extension expects that the application will configure a user loader function, that can be called to load a user given the ID.
+    - Because Flask-Login knows nothing about databases, it needs the application's help in loading a user. For that reason, the extension expects that the application will configure a user loader function, that can be called to load a user given the ID. This function can be added in the _app/models.py_ module:
+      ```python
+      @login.user_loader
+      def load_user(id):
+         return User.query.get(int(id))
+      ```
+    - `login_user()` function, which comes from Flask-Login, will register the user as logged in, so that means that any future pages the user navigates to will have the `current_user` variable set to that user.
+    - Flask-Login's `logout_user()` function is used to log users out of the application.
     - The `is_anonymous` property is one of the attributes that Flask-Login adds to user objects through the `UserMixin` class. The `current_user.is_anonymous` expression is going to be `True` only when the user is not logged in.
     - __Requiring Users To Login :__ Flask-Login provides a very useful feature that forces users to log in before they can view certain pages of the application. 
         - For this feature to be implemented, Flask-Login needs to know what is the view function that handles logins. 
@@ -123,7 +168,8 @@ Sample Flask Project
 
  - `first_or_404()` : works exactly like first() when there are results, but in the case that there are no results automatically sends a 404 error back to the client.
 
- - [__Gravatar__](https://en.gravatar.com/) : To request an image for a given user, a URL with the format https://www.gravatar.com/avatar/[hash], where `[hash]` is the MD5 hash of the user's email address.
+ - [__Gravatar__](https://en.gravatar.com/) : To request an image for a given user, a URL with the format https://www.gravatar.com/avatar/[hash], where `[hash]` is the MD5 hash of the user's email address.  
+   - Remember, MD5 support in Python works on bytes and not on strings.
    ```shell
    >>> from hashlib import md5
    >>> 'https://www.gravatar.com/avatar/' + md5(b'john@example.com').hexdigest()
@@ -223,6 +269,7 @@ Sample Flask Project
          app.logger.info('Microblog startup')
       ```
 
+- The representation of a many-to-many relationship requires the use of an auxiliary table called an _association table_. 
 - __*self-referential relationship :*__ A relationship in which instances of a class are linked to other instances of the same class
 
 - An auxiliary table that has no data other than the foreign keys is created without an associated model class.
@@ -243,6 +290,8 @@ Sample Flask Project
          secondaryjoin=(followers.c.followed_id == id),
          backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
    ```
+- The __"c"__ is an attribute of SQLAlchemy tables that are not defined as models. For these tables, the table columns are all exposed as sub-attributes of this __"c"__ attribute.
+- It is always best to move the application logic away from view functions and into models or other auxiliary classes or modules, because it makes unit testing much easier.
 
 - The `filter()` method is lower level, as it can include arbitrary filtering conditions, unlike `filter_by()` which can only check for equality to a constant value.
 
@@ -257,22 +306,87 @@ Sample Flask Project
    - By changing the application configuration to `sqlite://` , SQLAlchemy uses an in-memory SQLite database during the tests.
    - The `db.create_all()` call creates all the database tables. This is a quick way to create a database from scratch that is useful for testing. 
 
+- It is a standard practice to respond to a `POST` request generated by a web form submission with a redirect. This helps mitigate an annoyance with how the refresh command is implemented in web browsers. All the web browser does when you hit the refresh key is to re-issue the last request. If a `POST` request with a form submission returns a regular response, then a refresh will re-submit the form. Because this is unexpected, the browser is going to ask the user to confirm the duplicate submission, but most users will not understand what the browser is asking them. But if a `POST` request is answered with a redirect, the browser is now instructed to send a `GET` request to grab the page indicated in the redirect, so now the last request is not a `POST` request anymore, and the refresh command works in a more predictable way.
+
+This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserting duplicate posts when a user inadvertently refreshes the page after submitting a web form.
 - __[Post/Redirect/Get (PRG)](https://en.wikipedia.org/wiki/Post/Redirect/Get)__ pattern: A web development design pattern that prevents some duplicate form submissions, creating a more intuitive interface for user agents (users). PRG supports bookmarks and the refresh button in a predictable way that does not create duplicate form submissions.
 
 - To prevent the _index.html_ template from crashing when it tries to render a web form that does not exist, add a conditional that only renders the form if it is defined.
 
 - __Pagination :__ 
    - Flask-SQLAlchemy supports pagination natively with the `paginate()` query method.
-
-   ```python
-   user.followed_posts().paginate(1, 20, False).items
-   ```
+      ```python
+      user.followed_posts().paginate(1, 20, False).items
+      ```
    - The `paginate` method can be called on any query object from Flask-SQLAlchemy. 
-   - The return value from paginate is an object of a Pagination class from Flask-SQLAlchemy. The items attribute of this object contains the list of items in the requested page, alongwith other useful attributes that are useful when building pagination links:
+   - The return value from `paginate` is an object of a `Pagination` class from Flask-SQLAlchemy. The `items` attribute of this object contains the list of items in the requested page, alongwith other useful attributes that are useful when building pagination links:
       - `has_next`: True if there is at least one more page after the current one
       - `has_prev`: True if there is at least one more page before the current one
       - `next_num`: page number for the next page
       - `prev_num`: page number for the previous page
+
+- __Email Support :__ 
+   - Like most Flask extensions, you need to create an instance right after the Flask application is created.
+      ```shell
+      # ...
+      from flask_mail import Mail
+
+      app = Flask(__name__)
+      # ...
+      mail = Mail(app)
+      ```
+   
+      ```shell
+      from flask_mail import Message
+      from app import mail
+
+      def send_email(subject, sender, recipients, text_body, html_body):
+         msg = Message(subject, sender=sender, recipients=recipients)
+         msg.body = text_body
+         msg.html = html_body
+         mail.send(msg)
+      ```
+
+   - __How do JWTs work?__
+      ```shell
+      >>> import jwt
+      >>> token = jwt.encode({'a': 'b'}, 'my-secret', algorithm='HS256')
+      >>> token
+      b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhIjoiYiJ9.dvOo58OBDHiuSHD4uW88nfJikhYAXc_sfUHq1mDi4G0'
+      >>> jwt.decode(token, 'my-secret', algorithms=['HS256'])
+      {'a': 'b'}
+      ```
+
+      - The contents of the token, including the payload, can be decoded easily by anyone (Copy the above token and then enter it in the [JWT debugger](https://jwt.io/#debugger-io) to see its contents). What makes the token secure is that the payload is _signed_. If somebody tried to forge or tamper with the payload in a token, then the signature would be invalidated, and to generate a new signature the secret key is needed. When a token is verified, the contents of the payload are decoded and returned back to the caller. If the token's signature was validated, then the payload can be trusted as authentic.
+      - The payload that I'm going to use for the password reset tokens is going to have the format `{'reset_password': user_id, 'exp': token_expiration}`. The `exp` field is standard for JWTs and if present it indicates an expiration time for the token. If a token has a valid signature, but it is past its expiration timestamp, then it will also be considered invalid.
+
+      - Note that the `decode('utf-8')` is necessary because the `jwt.encode()` function returns the token as a byte sequence, but in the application it is more convenient to have the token as a string.
+
+   - `@staticmethod` : A static method is similar to a class method, with the only difference that static methods do not receive the class as a first argument. A static method can be invoked directly from the class.
+
+   - When `_external=True` is passed as an argument, complete URLs are generated
+
+   - __Asynchronous Emails :__
+      - Python has support for running asynchronous tasks, actually in more than one way. The `threading` and `multiprocessing` modules can both do this. Starting a background thread for email being sent is much less resource intensive than starting a brand new process, so I'm going to go with that approach:
+         ```python 
+         from threading import Thread
+         # ...
+
+         def send_async_email(app, msg):
+            with app.app_context():
+               mail.send(msg)
+
+
+         def send_email(subject, sender, recipients, text_body, html_body):
+            msg = Message(subject, sender=sender, recipients=recipients)
+            msg.body = text_body
+            msg.html = html_body
+            Thread(target=send_async_email, args=(app, msg)).start()
+         ```
+      - When working with threads there is an important design aspect of Flask that needs to be kept in mind. Flask uses _contexts_ to avoid having to pass arguments across functions. There are two types of contexts, the _application context_ and the _request context_. In most cases, these contexts are automatically managed by the framework, but when the application starts custom threads, contexts for those threads may need to be manually created.
+      - The reason many extensions need to know the application instance is because they have their configuration stored in the `app.config` object.
+      - The application context that is created with the `with app.app_context()` call makes the application instance accessible via the `current_app` variable from Flask.
+
 
  #### Questions :
  - [Pylint can't find SQLAlchemy query member](https://stackoverflow.com/questions/28193025/pylint-cant-find-sqlalchemy-query-member)
