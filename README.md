@@ -44,6 +44,11 @@ Sample Flask Project
    ```shell
    pip install pyjwt
    ```
+ - [Flask-Bootstrap](https://pythonhosted.org/Flask-Bootstrap/)
+   ```shell
+   pip install flask-bootstrap
+   ```
+
    
 
 
@@ -386,6 +391,23 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
       - When working with threads there is an important design aspect of Flask that needs to be kept in mind. Flask uses _contexts_ to avoid having to pass arguments across functions. There are two types of contexts, the _application context_ and the _request context_. In most cases, these contexts are automatically managed by the framework, but when the application starts custom threads, contexts for those threads may need to be manually created.
       - The reason many extensions need to know the application instance is because they have their configuration stored in the `app.config` object.
       - The application context that is created with the `with app.app_context()` call makes the application instance accessible via the `current_app` variable from Flask.
+
+- __Rendering Bootstrap Forms :__
+   - Instead of having to style the form fields one by one, Flask-Bootstrap comes with a macro that accepts a Flask-WTF form object as an argument and renders the complete form using Bootstrap styles.
+      ```html
+      {% extends "base.html" %}
+      {% import 'bootstrap/wtf.html' as wtf %}
+
+      {% block app_content %}
+         <h1>Register</h1>
+         <div class="row">
+            <div class="col-md-4">
+                  {{ wtf.quick_form(form) }}
+            </div>
+         </div>
+      {% endblock %}
+      ```
+   - `wtf.quick_form()` macro in a single line of code renders the complete form, including support for display validation errors, and all styled as appropriate for the Bootstrap framework.
 
 
  #### Questions :
