@@ -409,6 +409,10 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
       ```
    - `wtf.quick_form()` macro in a single line of code renders the complete form, including support for display validation errors, and all styled as appropriate for the Bootstrap framework.
 
+- __Dates and Times :__
+   - Server must manage times that are consistent and independent of location.
+   - UTC is the most used uniform timezone and is supported in the `datetime` class
+   - While standardizing the timestamps to UTC makes a lot of sense from the server's perspective, this creates a usability problem for users.
 
  #### Questions :
  - [Pylint can't find SQLAlchemy query member](https://stackoverflow.com/questions/28193025/pylint-cant-find-sqlalchemy-query-member)
