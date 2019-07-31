@@ -48,6 +48,10 @@ Sample Flask Project
    ```shell
    pip install flask-bootstrap
    ```
+ - _Flask-Moment_ : a small Flask extension that makes it very easy to incorporate moment.js into your application.
+   ```shell
+   pip install flask-moment
+   ```
 
    
 
@@ -413,6 +417,64 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
    - Server must manage times that are consistent and independent of location.
    - UTC is the most used uniform timezone and is supported in the `datetime` class
    - While standardizing the timestamps to UTC makes a lot of sense from the server's perspective, this creates a usability problem for users.
+   - While users can be asked to enter their timezone when they access the site for the first time, as part of their registration, it would be more efficient if you could just grab the timezone setting from their computers. There are actually two ways to take advantage of the timezone information available via JavaScript:
+      - The _"old school"_ approach would be to have the web browser somehow send the timezone information to the server when the user first logs on to the application. This could be done with an Ajax call, or much more simply with a meta refresh tag. 
+      - The _"new school"_ approach would be to not change a thing in the server, and let the conversion from UTC to local timezone happen in the client, using JavaScript.
+
+         - The second option is advantageous as the browser has also access to the system locale configuration, which specifies things like AM/PM vs. 24 hour clock, DD/MM/YYYY vs. MM/DD/YYYY and many other cultural or regional styles. Addtionally, there is an open-source library that does all this work! (__Moment.js__)
+   - __[Moment.js](https://momentjs.com/)__
+      - a small open-source JavaScript library that takes date and time rendering to another level, as it provides every imaginable formatting option, and then some.
+         ```python
+         # ...
+         from flask_moment import Moment
+
+         app = Flask(__name__)
+         # ...
+         moment = Moment(app)
+         ```
+
+         ```python
+         {% block scripts %}
+            {{ super() }}
+            {{ moment.include_moment() }}
+         {% endblock %}
+         ```
+      - Moment.js makes a `moment` class available to the browser. The `moment` object provides several methods for different rendering options.
+         ```shell
+         moment('2017-09-28T21:45:23Z').format('L')
+         "09/28/2017"
+         moment('2017-09-28T21:45:23Z').format('LL')
+         "September 28, 2017"
+         moment('2017-09-28T21:45:23Z').format('LLL')
+         "September 28, 2017 2:45 PM"
+         moment('2017-09-28T21:45:23Z').format('LLLL')
+         "Thursday, September 28, 2017 2:45 PM"
+         moment('2017-09-28T21:45:23Z').format('dddd')
+         "Thursday"
+         moment('2017-09-28T21:45:23Z').fromNow()
+         "7 hours ago"
+         moment('2017-09-28T21:45:23Z').calendar()
+         "Today at 2:45 PM"
+         ```
+      - The Flask-Moment extension greatly simplifies the use of moment.js by enabling a `moment` object similar to the JavaScript one in your templates.
+         ```html
+         {% if user.last_seen %}
+         <p>Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
+         {% endif %}
+         ```
+
+         ```html
+         <a href="{{ url_for('user', username=post.author.username) }}">
+            {{ post.author.username }}
+         </a>
+         said {{ moment(post.timestamp).fromNow() }}:
+         <br>
+         {{ post.body }}
+         ```
+
+
+
+
 
  #### Questions :
  - [Pylint can't find SQLAlchemy query member](https://stackoverflow.com/questions/28193025/pylint-cant-find-sqlalchemy-query-member)
