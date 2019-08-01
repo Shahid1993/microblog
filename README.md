@@ -516,6 +516,7 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
             ```
 
       - __Generating a Language Catalog__
+      
             ```shell
             pybabel init -i messages.pot -d app/translations -l es
             ```
