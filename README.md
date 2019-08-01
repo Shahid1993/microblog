@@ -52,6 +52,10 @@ Sample Flask Project
    ```shell
    pip install flask-moment
    ```
+ - [Flask-Babel](https://pythonhosted.org/Flask-Babel/) : Flask-Babel is an extension to Flask that adds i18n and l10n support to any Flask application with the help of babel, pytz and speaklater. It has builtin support for date formatting with timezone support as well as a very simple and friendly interface to gettext translations.
+   ```shell
+   pip install flask-babel
+   ```
 
    
 
@@ -471,6 +475,63 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
          <br>
          {{ post.body }}
          ```
+   - __I18n and L10n__
+      ```python
+      class Config(object):
+      # ...
+      LANGUAGES = ['en', 'es']
+      ```
+
+      - The `Babel` instance provides a `localeselector` decorator. The decorated function is invoked for each request to select a language translation to use for that request:
+         ```python
+               from flask import request
+
+         # ...
+
+         @babel.localeselector
+         def get_locale():
+            return request.accept_languages.best_match(app.config['LANGUAGES'])
+         ```
+      - Flask's `request` object's `accept_languages` object provides a high-level interface to work with the [Accept-Language](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) header that clients send with a request. This header specifies the client language and locale preferences as a weighted list. The contents of this header can be configured in the browser's preferences page, with the default being usually imported from the language settings in the computer's operating system. Here is an example of a complex `Accept-Languages` header:
+         ```
+         Accept-Language: da, en-gb;q=0.8, en;q=0.7
+         ```
+      - The `best_match()` method takes the list of languages offered by the application as an argument and returns the best choice.
+      - Flask-Babel will scan all the files and extract those texts into a separate translation file using the [gettext](https://www.gnu.org/software/gettext/) tool.
+      - The way texts are marked for translation is by wrapping them in a function call that as a convention is called `_()`, just an underscore.
+      - Flask-Babel provides a _lazy evaluation_ version of `_()` that is called `lazy_gettext()` for evaluating string literals that are assigned outside of a request, e.g., labels associated with form fields.
+      
+      - __Extracting Text to Translate__
+         - Once you have the application with all the `_()` and `_l()` in place, you can use the pybabel command to extract them to a _.pot_ file, which stands for _portable object template_. This is a text file that includes all the texts that were marked as needing translation. The purpose of this file is to serve as a template to create translation files for each language.
+         - The extraction process needs a small configuration file that tells pybabel what files should be scanned for translatable texts. Below you can see the _babel.cfg_ that I created for this application:
+            ```
+            [python: app/**.py]
+            [jinja2: app/templates/**.html]
+            extensions=jinja2.ext.autoescape,jinja2.ext.with_
+            ```
+            - The third line defines two extensions provided by the Jinja2 template engine that help Flask-Babel properly parse template files.
+         - To extract all the texts to the _.pot_ file, you can use the following command:
+            ```
+            pybabel extract -F babel.cfg -k _l -o messages.pot .
+            ```
+
+      - __Generating a Language Catalog__
+         ```shell
+         pybabel init -i messages.pot -d app/translations -l es
+         ```
+         - For each text, you get a reference to the location of the text in your application. Then the `msgid` line contains the text in the base language, and the `msgstr` line that follows contains an empty string. Those empty strings need to be edited to have the version of the text in the target language.
+
+         - The most popular translation application is the open-source [poedit](https://poedit.net/), which is available for all major operating systems. If you are familiar with vim, then the [po.vim](https://vim8.org/) plugin gives some key mappings that make working with these files easier.
+
+         - The _messages.po_ file is a sort of source file for translations. When you want to start using these translated texts, this file needs to be _compiled_ into a format that is efficient to be used by the application at run-time. To compile all the translations for the application, you can use the `pybabel compile` command as follows:
+            ```shell
+            pybabel compile -d app/translations
+            ```
+            - This operation adds a _messages.mo_ file next to messages.po in each language repository. The _.mo_ file is the file that Flask-Babel will use to load translations for the application.
+         
+
+
+
 
 
 
