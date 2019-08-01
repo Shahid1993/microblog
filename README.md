@@ -524,9 +524,9 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
          - The most popular translation application is the open-source [poedit](https://poedit.net/), which is available for all major operating systems. If you are familiar with vim, then the [po.vim](https://vim8.org/) plugin gives some key mappings that make working with these files easier.
 
          - The _messages.po_ file is a sort of source file for translations. When you want to start using these translated texts, this file needs to be _compiled_ into a format that is efficient to be used by the application at run-time. To compile all the translations for the application, you can use the `pybabel compile` command as follows:
-            ```shell
-            pybabel compile -d app/translations
-            ```
+               ```shell
+               pybabel compile -d app/translations
+               ```
             - This operation adds a _messages.mo_ file next to messages.po in each language repository. The _.mo_ file is the file that Flask-Babel will use to load translations for the application.
          
 
