@@ -516,9 +516,9 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
             ```
 
       - __Generating a Language Catalog__
-         ```shell
-         pybabel init -i messages.pot -d app/translations -l es
-         ```
+            ```shell
+            pybabel init -i messages.pot -d app/translations -l es
+            ```
          - For each text, you get a reference to the location of the text in your application. Then the `msgid` line contains the text in the base language, and the `msgstr` line that follows contains an empty string. Those empty strings need to be edited to have the version of the text in the target language.
 
          - The most popular translation application is the open-source [poedit](https://poedit.net/), which is available for all major operating systems. If you are familiar with vim, then the [po.vim](https://vim8.org/) plugin gives some key mappings that make working with these files easier.
