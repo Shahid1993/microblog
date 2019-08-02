@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-07-31 18:46+0530\n"
+"POT-Creation-Date: 2019-08-02 13:48+0530\n"
 "PO-Revision-Date: 2019-07-31 19:35+0530\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -136,7 +136,9 @@ msgstr "Explorar"
 
 #: app/routes.py:185
 msgid "Check your email for the instructions to reset your password"
-msgstr "Consulte su correo electrónico para obtener las instrucciones para restablecer su contraseña"
+msgstr ""
+"Consulte su correo electrónico para obtener las instrucciones para "
+"restablecer su contraseña"
 
 #: app/routes.py:206
 msgid "Your password has been reset."
@@ -156,7 +158,9 @@ msgstr "Un error inesperado ha ocurrido."
 
 #: app/templates/500.html:5
 msgid "The administrator has been notified. Sorry for the inconvenience!"
-msgstr "El administrador ha sido notificado. ¡Lo siento por los inconvenientes ocasionados!"
+msgstr ""
+"El administrador ha sido notificado. ¡Lo siento por los inconvenientes "
+"ocasionados!"
 
 #: app/templates/_post.html:14
 #, python-format

@@ -476,6 +476,8 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
          {{ post.body }}
          ```
    - __I18n and L10n__
+      - [Flask-Babel](https://pythonhosted.org/Flask-Babel/) makes working with translations very easy.
+
       ```python
       class Config(object):
       # ...
@@ -528,7 +530,100 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
             pybabel compile -d app/translations
             ```
             - This operation adds a _messages.mo_ file next to messages.po in each language repository. The _.mo_ file is the file that Flask-Babel will use to load translations for the application.
-         
+
+      - __Updating the Translations__
+         ```shell
+         pybabel extract -F babel.cfg -k _l -o messages.pot .
+         pybabel update -i messages.pot -d app/translations
+         ```
+
+         - The `update` call takes the new `messages.pot` file and merges it into all the _messages.po_ files associated with the project. This is going to be an intelligent merge, in which any existing texts will be left alone, while only entries that were added or removed in _messages.pot_ will be affected.
+         - After the _messages.po_ are updated, you can go ahead and translate any new tests, then compile the messages one more time to make them available to the application.
+
+      - __Translating Dates and Times__
+         - The moment.js library does support localization and internationalization.
+         - Flask-Babel returns the selected language and locale for a given request via the `get_locale()` function, which has to be added to the `g` object so that it can be accessed from the base template.
+            ```python
+            # ...
+            from flask import g
+            from flask_babel import get_locale
+
+            # ...
+
+            @app.before_request
+            def before_request():
+               # ...
+               g.locale = str(get_locale()) #To return only language code from locale object str() is used
+            ```
+
+            ```html
+            ...
+            {% block scripts %}
+               {{ super() }}
+               {{ moment.include_moment() }}
+               {{ moment.lang(g.locale) }}
+            {% endblock %}
+            ```
+      - __Command-Line Enhancements__
+         - Flask relies on [Click](https://click.palletsprojects.com/en/7.x/) for all its command-line operations.
+            - Click is a Python package for creating beautiful command line interfaces in a composable way with as little code as necessary. It’s the “Command Line Interface Creation Kit”. It’s highly configurable but comes with sensible defaults out of the box.
+
+         - `app.cli.group()` decorator : used to create commands that are root for several sub-commands.
+         - The commands that I'm going to add are:
+
+            - `flask translate init LANG` to add a new language
+            - `flask translate update` to update all language repositories
+            - `flask translate compile` to compile all language repositories
+
+            ```python
+            from app import app
+
+            @app.cli.group()
+            def translate():
+               """Translation and localization commands."""
+               pass
+            ```
+
+            ```python
+            import os
+
+            # ...
+
+            @translate.command()
+            def update():
+               """Update all languages."""
+               if os.system('pybabel extract -F babel.cfg -k _l -o messages.pot .'):
+                  raise RuntimeError('extract command failed')
+               if os.system('pybabel update -i messages.pot -d app/translations'):
+                  raise RuntimeError('update command failed')
+               os.remove('messages.pot')
+
+            @translate.command()
+            def compile():
+               """Compile all languages."""
+               if os.system('pybabel compile -d app/translations'):
+                  raise RuntimeError('compile command failed')
+            ```
+
+            ```python
+            import click
+
+            @translate.command()
+            @click.argument('lang')
+            def init(lang):
+               """Initialize a new language."""
+               if os.system('pybabel extract -F babel.cfg -k _l -o messages.pot .'):
+                  raise RuntimeError('extract command failed')
+               if os.system(
+                        'pybabel init -i messages.pot -d app/translations -l ' + lang):
+                  raise RuntimeError('init command failed')
+               os.remove('messages.pot')
+            ```
+
+         - The final step to enable these commands to work is to import them, so that the commands get registered. (in _microblog.py_ file) :
+            ```python
+            from app import cli
+            ```
 
 
 
