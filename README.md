@@ -625,6 +625,13 @@ This simple trick is called the __Post/Redirect/Get__ pattern. It avoids inserti
             from app import cli
             ```
 
+         - To add a new language, you use:
+            ```shell
+            flask translate init <language-code>
+            flask translate update
+            flask translate compile
+            ```
+
 
 
 
